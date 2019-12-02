@@ -163,9 +163,15 @@ def check_dtype(item, config, attr):
 
 def parse_flights(node, tag):
     trip_flights = list()
-    for flight in node.findall('.//Flight'):
-        row = get_tag(flight, CONFIG_FLIGHT)
+    transfer_flight = None
+    for cur_flight in range(len(node.findall('.//Flight')) - 1, -1, -1):
+        row = get_tag(node.findall('.//Flight')[cur_flight], CONFIG_FLIGHT)
         row['Tag'] = tag
+        if cur_flight > 0:
+            row['transfer_to'] = transfer_flight
+            transfer_flight = row['Number_of_flight']
+        else:
+            row['transfer_to'] = transfer_flight
         trip_flights.append(row)
     return trip_flights
 
@@ -173,11 +179,20 @@ def parse_flights(node, tag):
 def parse_trip_price(trip, trip_id):
     trip_prices = list()
     for price in trip.findall('.//Pricing'):
-        row = get_tag(price, CONFIG_PRICE)
-        row['Trip_id'] = trip_id
-        if price.attrib:
-            row['currency'] = price.attrib['currency']
-        trip_prices.append(row)
+        for single_price in price.findall('ServiceCharges'):
+            price_d = dict()
+            price_d.update(check_dtype(single_price, CONFIG_PRICE, attr=None))
+            price_d['currency'] = price.attrib['currency']
+            price_d['Trip_id'] = trip_id
+            price_attrib = single_price.attrib
+            if price_attrib:
+                for k in price_attrib:
+                    item = {k: price_attrib[k]}
+                    price_d.update(
+                        check_dtype(item,
+                                    CONFIG_PRICE[single_price.tag]['attr'],
+                                    attr=True))
+            trip_prices.append(price_d)
     return trip_prices
 
 
