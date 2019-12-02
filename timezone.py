@@ -5,6 +5,7 @@ import redis
 import pytz
 from tzlocal import get_localzone
 from datetime import datetime
+import json
 
 r = redis.Redis('localhost')
 
@@ -30,8 +31,9 @@ def get_iata_country_spr():
     iata_dict = country_map.loc[:,
                 ['iata_code', 'country_code', 'timezone']].drop_duplicates(
         subset=['iata_code']).to_dict(orient='records')
-    iata_dict = {k['iata_code']: k['timezone'] for k in iata_dict}
-    r.hmset('iata_timezone', iata_dict)
+    iata_timezone = {k['iata_code']: k['timezone'] for k in iata_dict}
+    timezone_country = {k['iata_code']: k['timezone'] for k in iata_dict}
+    r.hmset('iata_timezone', iata_timezone)
     check_r = r.exists('iata_timezone')
     if check_r:
         return {'code': 200}
@@ -63,5 +65,5 @@ def get_time_by_local(iata_code, dt):
 
 
 # t1 = datetime.now()
-print(get_time_by_local('HKT', datetime(2002, 10, 27, 6, 0, 0)))
+print(get_time_by_local('svo', datetime(2002, 10, 27, 6, 0, 0)))
 # print(datetime.now() - t1)

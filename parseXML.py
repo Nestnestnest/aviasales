@@ -3,6 +3,8 @@ import dateutil.parser as parser
 import pandas as pd
 import datetime
 from timezone import get_time_by_local
+from currency_converter import CurrencyConverter
+import pycountry
 
 
 # tree = et.parse('xmls/RS_Via-3.xml')
@@ -80,7 +82,7 @@ CONFIG_FLIGHT = \
             'descrip': 'Count_stops'
         },
         'FareBasis': {
-            'dtype': 'text',
+            'dtype': 'id',
             'attr': False,
             'descrip': 'Trip_id'
         },
@@ -158,6 +160,8 @@ def check_dtype(item, config, attr):
             data = int(data)
         elif dtype == 'float':
             data = float(data)
+        elif dtype == 'id':
+            data = hash(data.strip())
     d[descrip] = data
     return d
 
@@ -228,5 +232,35 @@ for trip in trips:
     if price:
         prices.extend(price)
 df = pd.DataFrame(data=flights)
+df = df.sort_values(
+    ['Trip_id', 'Tag', 'transfer_to', 'Time_from_local']).reset_index(drop=True)
 prices = pd.DataFrame(data=prices)
+agg_prices = prices.groupby(['Trip_id']).agg({'Charges': 'sum'}).reset_index()
+airports = ['DXB', 'BKK']
+trip_struct = dict()
+trips = list()
+pauses = list()
+for i, flight in df.iterrows():
+    if i == 0:
+        start_f = flight
+    elif start_f['Trip_id'] != flight['Trip_id']:
+        if start_f['From'] in airports and df.loc[i - 1, 'To'] in airports:
+            trip_struct['id'] = start_f['Trip_id']
+            trip_struct['from'] = start_f['From']
+            trip_struct['to'] = df.loc[i - 1, 'To']
+            trip_struct['time'] = df.loc[i - 1, 'Time_to_local'] - start_f[
+                'Time_from_local']
+            trip_struct['total_price'] = agg_prices.loc[
+                agg_prices['Trip_id'] == trip_struct['id'], 'Charges'].values[
+                0].round(3)
+            trip_struct['currency'] = prices.loc[
+                prices['Trip_id'] == trip_struct['id'], 'currency'].values[0]
+            trips.append(trip_struct)
+            trip_struct = {}
+        start_f = flight
+    else:
+        pauses.append(flight['Time_from_local'] - start_f['Time_to_local'])
 print(datetime.datetime.now() - t1)
+
+
+# def parse_global_configs():
