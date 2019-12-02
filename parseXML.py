@@ -2,6 +2,7 @@ import xml.etree.ElementTree as et
 import dateutil.parser as parser
 import pandas as pd
 import datetime
+from timezone import get_time_by_local
 
 
 # tree = et.parse('xmls/RS_Via-3.xml')
@@ -167,6 +168,11 @@ def parse_flights(node, tag):
     for cur_flight in range(len(node.findall('.//Flight')) - 1, -1, -1):
         row = get_tag(node.findall('.//Flight')[cur_flight], CONFIG_FLIGHT)
         row['Tag'] = tag
+        from_local_t = get_time_by_local(row['From'], row['Time_from'])
+        to_local_t = get_time_by_local(row['To'], row['Time_to'])
+        if from_local_t['code'] == 200 and to_local_t['code'] == 200:
+            row['Time_from_local'] = parser.parse(from_local_t['data'])
+            row['Time_to_local'] = parser.parse(to_local_t['data'])
         if cur_flight > 0:
             row['transfer_to'] = transfer_flight
             transfer_flight = row['Number_of_flight']
@@ -205,6 +211,7 @@ def get_trips(root):
     return flights
 
 
+t1 = datetime.datetime.now()
 trips = get_trips(root)
 flights = list()
 prices = list()
@@ -222,3 +229,4 @@ for trip in trips:
         prices.extend(price)
 df = pd.DataFrame(data=flights)
 prices = pd.DataFrame(data=prices)
+print(datetime.datetime.now() - t1)

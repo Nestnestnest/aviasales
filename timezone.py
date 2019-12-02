@@ -1,8 +1,6 @@
-import json
 import io
 import requests
 import pandas as pd
-import os
 import redis
 import pytz
 from tzlocal import get_localzone
@@ -57,10 +55,13 @@ def get_time_by_local(iata_code, dt):
     if timezone['code'] == 200:
         timezone = pytz.timezone(timezone['data'])
         timezone_dt = timezone.localize(dt)
-        print(timezone_dt)
         local_zone = pytz.timezone(str(get_localzone()))
         local_dt = timezone_dt.astimezone(local_zone)
-        return local_dt
+        local_dt = datetime.strftime(local_dt, '%Y-%m-%d %T')
+        return {'code': 200, 'data': local_dt}
+    return timezone
 
 
+# t1 = datetime.now()
 print(get_time_by_local('HKT', datetime(2002, 10, 27, 6, 0, 0)))
+# print(datetime.now() - t1)
