@@ -28,6 +28,9 @@
             <form class="form-inline" method="post" action="/get_flight"
                   ref="form">
                 <div class="form-group">
+                     <input type="text" class="form-control"
+                               style="display:none" id="xml_q1" name="xml"
+                               value="RS_ViaOW" readonly>
                     <div class="col-sm-2">
                         <label for="from_q1">FROM</label>
                         <input type="text" class="form-control"
@@ -73,10 +76,13 @@
 
         </div>
         <div class="query_2">
-            <p class="query_label">RS_VIA-3</p>
+            <p class="query_label">RS_Via-3</p>
             <form class="form-inline" method="post" action="/get_flight"
                   ref="form">
                 <div class="form-group">
+                       <input type="text" class="form-control"
+                               style="display:none" id="xml_q2" name="xml"
+                               value="RS_Via-3" readonly>
                     <div class="col-sm-2">
                         <label for="from_q2">FROM</label>
                         <input type="text" class="form-control"

@@ -2,18 +2,15 @@ import io
 import requests
 import pandas as pd
 import pytz
-from tzlocal import get_localzone
 from datetime import datetime
-import json
-
-r = redis.Redis('localhost')
+from application import redis_client
 
 
 def search_timezone_by_iata(search_code):
     status = check_iata_spr()
     if status == 200:
         search_code = search_code.upper()
-        timezone = r.hget('iata_timezone', search_code)
+        timezone = redis_client.hget('iata_timezone', search_code)
         if timezone is not None:
             return {'code': 200, 'data': timezone.decode('UTF-8')}
         return {'code': 500, 'msg': 'No data by key in redis'}
@@ -32,10 +29,9 @@ def get_iata_country_spr():
         subset=['iata_code']).to_dict(orient='records')
     iata_timezone = {k['iata_code']: k['timezone'] for k in iata_dict}
     timezone_country = {k['timezone']: k['country_code'] for k in iata_dict}
-    print(timezone_country)
-    r.hmset('iata_timezone', iata_timezone)
-    r.hmset('timezone_country', timezone_country)
-    check_r = r.exists('iata_timezone')
+    redis_client.hmset('iata_timezone', iata_timezone)
+    redis_client.hmset('timezone_country', timezone_country)
+    check_r = redis_client.exists('iata_timezone')
     if check_r:
         return {'code': 200}
     else:
@@ -43,7 +39,7 @@ def get_iata_country_spr():
 
 
 def check_iata_spr():
-    if not r.exists('iata_timezone'):
+    if not redis_client.exists('iata_timezone'):
         load_spr = get_iata_country_spr()
         if 'code' in load_spr:
             if load_spr['code'] == 200:
@@ -53,12 +49,12 @@ def check_iata_spr():
         return 200
 
 
-def get_time_by_local(iata_code, dt):
+def get_time_by_local(iata_code, dt, local_zone):
     timezone = search_timezone_by_iata(iata_code)
     if timezone['code'] == 200:
         timezone = pytz.timezone(timezone['data'])
         timezone_dt = timezone.localize(dt)
-        local_zone = pytz.timezone(str(get_localzone()))
+        local_zone = pytz.timezone(local_zone)
         local_dt = timezone_dt.astimezone(local_zone)
         local_dt = datetime.strftime(local_dt, '%Y-%m-%d %T')
         return {'code': 200, 'data': local_dt}

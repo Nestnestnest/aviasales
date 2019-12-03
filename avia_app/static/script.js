@@ -17,6 +17,7 @@ var fligtMenu = new Vue({
             when = this.$refs.form.WHEN.value;
             when_return = this.$refs.form.WHEN_RETURN.value;
             who = this.$refs.form.WHO.value;
+            xml = this.$refs.form.xml.value;
 
             if(this.currency == '' || this.currency == 1)
             local_zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -29,6 +30,7 @@ var fligtMenu = new Vue({
             data.append('WHEN',when);
             data.append('WHEN_return',when_return);
             data.append('WHO',who);
+            data.append('xml',xml);
             $.ajax({
                 type: 'POST',
                 url: '/get_flight',

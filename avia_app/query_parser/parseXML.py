@@ -4,15 +4,6 @@ import pandas as pd
 import datetime
 from avia_app.query_parser.timezone import get_time_by_local
 
-
-def get_xml_root(xml):
-    tree = et.parse(xml)
-    root = tree.getroot()
-    return root
-
-
-root = get_xml_root('xmls/RS_ViaOW.xml')
-
 steps_dict = {'OnwardPricedItinerary': 'start',
               'ReturnPricedItinerary': 'finish', 'Pricing': 'price'}
 
@@ -102,11 +93,11 @@ CONFIG_PRICE = \
     }
 
 
-def parse_step(node):
+def parse_step(node, timezone):
     tag = node.tag
     l_step = list()
     if tag in steps_dict:
-        l_step = parse_flights(node, tag)
+        l_step = parse_flights(node, tag, timezone)
     return l_step
 
 
@@ -149,14 +140,14 @@ def check_dtype(item, config, attr):
     return d
 
 
-def parse_flights(node, tag):
+def parse_flights(node, tag, timezone):
     trip_flights = list()
     transfer_flight = None
     for cur_flight in range(len(node.findall('.//Flight')) - 1, -1, -1):
         row = get_tag(node.findall('.//Flight')[cur_flight], CONFIG_FLIGHT)
         row['Tag'] = tag
-        from_local_t = get_time_by_local(row['From'], row['Time_from'])
-        to_local_t = get_time_by_local(row['To'], row['Time_to'])
+        from_local_t = get_time_by_local(row['From'], row['Time_from'],timezone)
+        to_local_t = get_time_by_local(row['To'], row['Time_to'],timezone)
         if from_local_t['code'] == 200 and to_local_t['code'] == 200:
             row['Time_from_local'] = parser.parse(from_local_t['data'])
             row['Time_to_local'] = parser.parse(to_local_t['data'])
@@ -189,6 +180,14 @@ def parse_trip_price(trip, trip_id):
     return trip_prices
 
 
+# -========================================================================
+def get_xml_root(xml):
+    folder = f'xmls/{xml}.xml'
+    tree = et.parse(folder)
+    root = tree.getroot()
+    return root
+
+
 def get_trips(root):
     if 'Flights' == root.tag:
         return [root]
@@ -198,66 +197,25 @@ def get_trips(root):
     return flights
 
 
-t1 = datetime.datetime.now()
-trips = get_trips(root)
-flights = list()
-prices = list()
-for trip in trips:
-    flight = list()
-    for trips_step in list(trip):
-        trips_step = parse_step(trips_step)
-        if trips_step:
-            flight.extend(trips_step)
-    if flight:
-        flights.extend(flight)
-        trip_id = flight[0]['Trip_id']
-    price = parse_trip_price(trip, trip_id)
-    if price:
-        prices.extend(price)
-df = pd.DataFrame(data=flights)
-df = df.sort_values(
-    ['Trip_id', 'Tag', 'transfer_to', 'Time_from_local']).reset_index(drop=True)
-prices = pd.DataFrame(data=prices)
-agg_prices = prices.groupby(['Trip_id']).agg({'Charges': 'sum'}).reset_index()
-
-trip_struct = dict()
-trips = list()
-pauses = list()
-for i, flight in df.iterrows():
-    if i == 0:
-        start_f = flight
-    elif start_f['Trip_id'] != flight['Trip_id']:
-        if start_f['From'] in airports and df.loc[i - 1, 'To'] in airports:
-            trip_struct['id'] = start_f['Trip_id']
-            trip_struct['from'] = start_f['From']
-            trip_struct['to'] = df.loc[i - 1, 'To']
-            trip_struct['time'] = df.loc[i - 1, 'Time_to_local'] - start_f[
-                'Time_from_local']
-            trip_struct['total_price'] = agg_prices.loc[
-                agg_prices['Trip_id'] == trip_struct['id'], 'Charges'].values[
-                0].round(3)
-            trip_struct['currency'] = prices.loc[
-                prices['Trip_id'] == trip_struct['id'], 'currency'].values[0]
-            trips.append(trip_struct)
-            trip_struct = {}
-        start_f = flight
-    else:
-        pauses.append(flight['Time_from_local'] - start_f['Time_to_local'])
-print(datetime.datetime.now() - t1)
+def parse_xml(timezone, xml):
+    root = get_xml_root(xml)
+    trips = get_trips(root)
+    flights = list()
+    prices = list()
+    for trip in trips:
+        flight = list()
+        for trips_step in list(trip):
+            trips_step = parse_step(trips_step, timezone)
+            if trips_step:
+                flight.extend(trips_step)
+        if flight:
+            flights.extend(flight)
+            trip_id = flight[0]['Trip_id']
+        price = parse_trip_price(trip, trip_id)
+        if price:
+            prices.extend(price)
+    return flights, prices
 
 
-#
-def parse_global_configs():
-    global_conf = dict()
-
-
-#
-# # get_local_currency
-# в запросе валюта!!!
-# 2 контейнера с 2 запросами  POST и выбираем файл
-# откуда dxb куда bkk
-
-# console.log(Intl.DateTimeFormat().resolvedOptions().timeZone)
-#
-airports = ['DXB', 'BKK']
-
+def get_df_by_data(data):
+    return pd.DataFrame(data=data)
