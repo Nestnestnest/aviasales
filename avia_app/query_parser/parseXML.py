@@ -2,33 +2,16 @@ import xml.etree.ElementTree as et
 import dateutil.parser as parser
 import pandas as pd
 import datetime
-from timezone import get_time_by_local
-from currency_converter import CurrencyConverter
-import pycountry
+from avia_app.query_parser.timezone import get_time_by_local
 
 
-# tree = et.parse('xmls/RS_Via-3.xml')
-# root = tree.getroot()
+def get_xml_root(xml):
+    tree = et.parse(xml)
+    root = tree.getroot()
+    return root
 
 
-class Query:
-    def __init__(self, xml):
-        self.xml = xml
-
-    def get_xml_root(self):
-        tree = et.parse(self.xml)
-        root = tree.getroot()
-        return root
-
-
-# class ParseTrips:
-#     def __init__(self, root):
-#         self.root = root
-#     def get_trips(self):
-
-
-first_q = Query('xmls/RS_ViaOW.xml')
-root = first_q.get_xml_root()
+root = get_xml_root('xmls/RS_ViaOW.xml')
 
 steps_dict = {'OnwardPricedItinerary': 'start',
               'ReturnPricedItinerary': 'finish', 'Pricing': 'price'}
@@ -236,7 +219,7 @@ df = df.sort_values(
     ['Trip_id', 'Tag', 'transfer_to', 'Time_from_local']).reset_index(drop=True)
 prices = pd.DataFrame(data=prices)
 agg_prices = prices.groupby(['Trip_id']).agg({'Charges': 'sum'}).reset_index()
-airports = ['DXB', 'BKK']
+
 trip_struct = dict()
 trips = list()
 pauses = list()
@@ -263,4 +246,18 @@ for i, flight in df.iterrows():
 print(datetime.datetime.now() - t1)
 
 
-# def parse_global_configs():
+#
+def parse_global_configs():
+    global_conf = dict()
+
+
+#
+# # get_local_currency
+# в запросе валюта!!!
+# 2 контейнера с 2 запросами  POST и выбираем файл
+# откуда dxb куда bkk
+
+# console.log(Intl.DateTimeFormat().resolvedOptions().timeZone)
+#
+airports = ['DXB', 'BKK']
+

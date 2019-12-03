@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='main.css', version = RELEASE_VERSION ) }}">
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <title>aviasales-task</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+</head>
+<body>
+<div id="main_flight_menu">
+    <div class="container">
+        <div class="form-group">
+            <label for="currency">Валюта</label>
+            <select v-model='currency' class="form-control" id="currency">
+                <option value="1">Соответсвующая вашей local timezone</option>
+                <option value="0">Исходная</option>
+            </select>
+        </div>
+        <div class="query_1">
+            <p class="query_label">RS_ViaOW</p>
+            <form class="form-inline" method="post" action="/get_flight"
+                  ref="form">
+                <div class="form-group">
+                    <div class="col-sm-2">
+                        <label for="from_q1">FROM</label>
+                        <input type="text" class="form-control"
+                               id="from_q1" name="FROM"
+                               value="DXB" readonly>
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="to_q1">TO</label>
+                        <input type="text" class="form-control"
+                               id="to_q1" name="TO"
+                               value="BKK" readonly>
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="when_q1">WHEN TO</label>
+                        <input type="date" class="form-control"
+                               id="when_q1" name="WHEN"
+                               value="2018-10-27" readonly>
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="when_ret_q1">WHEN RETURN</label>
+                        <input type="date" class="form-control"
+                               id="when_ret_q1" name="WHEN_RETURN"
+                               value="" readonly>
+                    </div>
+                    ¬
+                    <div class="col-sm-2">
+                        <label for="who_q1">WHO</label>
+                        <input type="text" class="form-control"
+                               id="who_q1" name="WHO"
+                               value="1-1-1" readonly>
+                    </div>
+
+                </div>
+                <div class="col-md-12 text-center">
+                    <button style="margin-top:10px" type="submit"
+                            @click.prevent="getTrip()"
+                            class="btn btn-success">Search 1
+
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+        <div class="query_2">
+            <p class="query_label">RS_VIA-3</p>
+            <form class="form-inline" method="post" action="/get_flight"
+                  ref="form">
+                <div class="form-group">
+                    <div class="col-sm-2">
+                        <label for="from_q2">FROM</label>
+                        <input type="text" class="form-control"
+                               id="from_q2" name="FROM"
+                               value="DXB" readonly>
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="to_q2">TO</label>
+                        <input type="text" class="form-control"
+                               id="to_q2" name="TO"
+                               value="BKK" readonly>
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="when_q2">WHEN TO</label>
+                        <input type="date" class="form-control"
+                               id="when_q2" name="WHEN"
+                               value="2018-10-22" readonly>
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="when_ret_q2">WHEN RETURN</label>
+                        <input type="date" class="form-control"
+                               id="when_ret_q2" name="WHEN_RETURN"
+                               value="2018-10-30" readonly>
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="who_q2">WHO</label>
+                        <input type="text" class="form-control"
+                               id="who_q2" name="WHO"
+                               value="1-0-0" readonly>
+                    </div>
+
+                </div>
+                <div class="col-md-12 text-center">
+                    <button style="margin-top:10px" type="submit"
+                            @click.prevent="getTrip()"
+                            class="btn btn-primary">Search 2
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<script src="{{url_for('static', filename='script.js')}}"></script>
+
+</body>
+</html>

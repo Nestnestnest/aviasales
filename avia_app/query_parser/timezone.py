@@ -1,7 +1,6 @@
 import io
 import requests
 import pandas as pd
-import redis
 import pytz
 from tzlocal import get_localzone
 from datetime import datetime
@@ -32,8 +31,10 @@ def get_iata_country_spr():
                 ['iata_code', 'country_code', 'timezone']].drop_duplicates(
         subset=['iata_code']).to_dict(orient='records')
     iata_timezone = {k['iata_code']: k['timezone'] for k in iata_dict}
-    timezone_country = {k['iata_code']: k['timezone'] for k in iata_dict}
+    timezone_country = {k['timezone']: k['country_code'] for k in iata_dict}
+    print(timezone_country)
     r.hmset('iata_timezone', iata_timezone)
+    r.hmset('timezone_country', timezone_country)
     check_r = r.exists('iata_timezone')
     if check_r:
         return {'code': 200}
@@ -64,6 +65,5 @@ def get_time_by_local(iata_code, dt):
     return timezone
 
 
-# t1 = datetime.now()
-print(get_time_by_local('svo', datetime(2002, 10, 27, 6, 0, 0)))
-# print(datetime.now() - t1)
+if __name__ == '__main__':
+    print(get_time_by_local('svo', datetime(2019, 9, 27, 6, 0, 0)))
