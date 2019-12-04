@@ -10,14 +10,8 @@ query_parser_app = Blueprint('query_parser_app', __name__)
 def get_index():
     return render_template('index.html')
 
-import datetime
+
 @query_parser_app.route('/get_flight', methods=['POST'])
 def get_flight():
-    print(request.form)
-    t1 = datetime.datetime.now()
     global_info, xml = get_global_info(request.form)
-    a = show_flights(global_info,xml)
-    print(datetime.datetime.now()-t1)
-    # return (jsonify(show_flights())
-
-    return jsonify(a=200)
+    return jsonify(show_flights(global_info, xml))

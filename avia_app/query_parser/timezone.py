@@ -4,6 +4,7 @@ import pandas as pd
 import pytz
 from datetime import datetime
 from application import redis_client
+import time
 
 
 def search_timezone_by_iata(search_code):
@@ -56,9 +57,17 @@ def get_time_by_local(iata_code, dt, local_zone):
         timezone_dt = timezone.localize(dt)
         local_zone = pytz.timezone(local_zone)
         local_dt = timezone_dt.astimezone(local_zone)
-        local_dt = datetime.strftime(local_dt, '%Y-%m-%d %T')
-        return {'code': 200, 'data': local_dt}
+        format_dt = int(time.mktime(local_dt.timetuple()))
+        return {'code': 200, 'data': format_dt}
     return timezone
+
+
+def parse_ts_to_datetime(ts):
+    ts = int(time.mktime(ts.timetuple()))
+    try:
+        return datetime.fromtimestamp(ts)
+    except:
+        return datetime.fromtimestamp(int(ts) / 1e3)
 
 
 if __name__ == '__main__':

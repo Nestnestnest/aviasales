@@ -2,6 +2,7 @@ import xml.etree.ElementTree as et
 import dateutil.parser as parser
 import pandas as pd
 import datetime
+import time
 from avia_app.query_parser.timezone import get_time_by_local
 
 steps_dict = {'OnwardPricedItinerary': 'start',
@@ -149,8 +150,8 @@ def parse_flights(node, tag, timezone):
         from_local_t = get_time_by_local(row['From'], row['Time_from'],timezone)
         to_local_t = get_time_by_local(row['To'], row['Time_to'],timezone)
         if from_local_t['code'] == 200 and to_local_t['code'] == 200:
-            row['Time_from_local'] = parser.parse(from_local_t['data'])
-            row['Time_to_local'] = parser.parse(to_local_t['data'])
+            row['Time_from_local'] = from_local_t['data']
+            row['Time_to_local'] = to_local_t['data']
         if cur_flight > 0:
             row['transfer_to'] = transfer_flight
             transfer_flight = row['Number_of_flight']
