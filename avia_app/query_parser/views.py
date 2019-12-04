@@ -13,5 +13,6 @@ def get_index():
 
 @query_parser_app.route('/get_flight', methods=['POST'])
 def get_flight():
+    print(request.form)
     global_info, xml = get_global_info(request.form)
     return jsonify(show_flights(global_info, xml))

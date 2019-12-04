@@ -18,7 +18,7 @@ def show_flights(global_info, xml):
                                           {'time': 'total_time'})
     # get_optimal_flight
 
-    return {'callback': global_info}
+    return {'data': global_info}
 
 
 def convert_trips_to_json(global_info, flights, agg_prices):

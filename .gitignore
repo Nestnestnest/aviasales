@@ -103,7 +103,7 @@ venv.bak/
 # mypy
 .mypy_cache/
 /avia_app/xmls/
-.*.ipynb
+*.ipynb
 /.ipynb_checkpoints
 .idea/$PRODUCT_WORKSPACE_FILE$
 .idea/.gitignore

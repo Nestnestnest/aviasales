@@ -26,7 +26,7 @@
         <div class="query_1">
             <p class="query_label">RS_ViaOW</p>
             <form class="form-inline" method="post" action="/get_flight"
-                  ref="form">
+                  ref="form1">
                 <div class="form-group">
                      <input type="text" class="form-control"
                                style="display:none" id="xml_q1" name="xml"
@@ -66,7 +66,7 @@
                 </div>
                 <div class="col-md-12 text-center">
                     <button style="margin-top:10px" type="submit"
-                            @click.prevent="getTrip()"
+                            @click.prevent="getTrip('form1')"
                             class="btn btn-success">Search 1
 
                     </button>
@@ -78,7 +78,7 @@
         <div class="query_2">
             <p class="query_label">RS_Via-3</p>
             <form class="form-inline" method="post" action="/get_flight"
-                  ref="form">
+                  ref="form2">
                 <div class="form-group">
                        <input type="text" class="form-control"
                                style="display:none" id="xml_q2" name="xml"
@@ -117,12 +117,28 @@
                 </div>
                 <div class="col-md-12 text-center">
                     <button style="margin-top:10px" type="submit"
-                            @click.prevent="getTrip()"
+                            @click.prevent="getTrip('form2')"
                             class="btn btn-primary">Search 2
                     </button>
                 </div>
             </form>
 
+        </div>
+        <div id="trips" v-if="trip_data.flights">
+            <div class="trip_info">
+                <p>From: [[(trip_data.trip_points[0])]]</p>
+                <p>To: [[(trip_data.trip_points[1])]]</p>
+                <p v-if="trip_data.Currency">Валюта: [[trip_data.Currency ]]</p>
+                <p>Туда: [[trip_data.dates.Start_date | formatData]]</p>
+                <p v-if="trip_data.dates.Finish_date">Обратно: [[trip_data.dates.Finish_date | formatData]]</p>
+                <p>hello</p>
+                <p v-for="pass,type in trip_data.passangers">[[type]] : [[pass]]</p>
+            </div>
+        </div>
+        <div class="flights">
+            <div v-for="(flight,key) in trip_data.flights">
+               qqq
+            </div>
         </div>
     </div>
 </div>

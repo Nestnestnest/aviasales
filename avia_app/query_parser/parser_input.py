@@ -8,10 +8,12 @@ def get_global_info(request_form):
     local_zone, from_airport, to_airport, when, when_return, who, xml = get_post_params(
         request_form,
         'local_zone', 'FROM', 'TO', 'WHEN', 'WHEN_return', 'WHO', 'xml')
-    if local_zone != 'null':
+    global_struct['timezone'] = 'Europe/Moscow'
+    if local_zone != 'null' and local_zone is not None:
         global_struct['timezone'] = local_zone
         local_curr = get_local_cur_by_timezone(local_zone)
         global_struct['Currency'] = local_curr
+
     passangers = parse_who_fly(who)
     global_struct['passangers'] = passangers
     trip_points = parse_from_to(from_airport, to_airport)
@@ -23,7 +25,13 @@ def get_global_info(request_form):
 
 
 def get_post_params(request_form, *args):
-    return tuple(request_form[arg] for arg in args)
+    vars = list()
+    for arg in args:
+        if arg in request_form:
+            vars.append(request_form[arg])
+        else:
+            vars.append(None)
+    return tuple(vars)
 
 
 def parse_who_fly(who: str):
@@ -41,7 +49,6 @@ def parse_from_to(*args):
 
 
 def parse_arrival_dates(**dates):
-    return {date: datetime.strptime(dates[date], '%Y-%m-%d') for date in dates
+    return {date: datetime.strptime(dates[date], '%Y-%m-%d') for date in
+            dates
             if dates[date]}
-
-
