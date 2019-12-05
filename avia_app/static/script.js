@@ -4,7 +4,8 @@ var fligtMenu = new Vue({
         trip_data : {},
         sortParam: '',
         currency : '',
-        sortOptions: {'type':'price-low'}
+        sortOptions: {'type':'price-low'},
+        json:false
         },
 
     created() {
@@ -54,6 +55,16 @@ var fligtMenu = new Vue({
         }
     },
     methods: {
+        swapFormat(){
+            console.log('swap')
+            if(this.json)this.json = false
+            else {this.json = true
+                    Vue.nextTick(() => {
+                        document.getElementById("json_container").innerHTML = JSON.stringify(this.trip_data, undefined, 2);
+                    });
+
+            }
+        },
         changeSortType(){
             console.log("cur sort type ", this.sortOptions.type )
             this.sortFlights()
@@ -75,7 +86,8 @@ var fligtMenu = new Vue({
             }.bind(this))
         },
         getTrip(ref){
-
+            this.json = false
+            this.trip_data = {};
             from = this.$refs[ref].FROM.value;
             to = this.$refs[ref].TO.value;
             when = this.$refs[ref].WHEN.value;
@@ -108,7 +120,6 @@ var fligtMenu = new Vue({
                 processData: false,
                 dataType: 'json'
             }).done(function (data) {
-                console.log('data', data)
                 let newData = data.data
                 newData.flightsArr = Object.entries(newData.flights).map((item)=>{
                     return {
@@ -116,21 +127,11 @@ var fligtMenu = new Vue({
                         value: item[1]
                     }
                 })
-                console.log('newData',newData)
-                this.trip_data = newData;
-            }.bind(this))
-                .fail(function (data) {
-                let newData = testJSON
-                newData.flightsArr = Object.entries(newData.flights).map((item)=>{
-                    return {
-                        id: item[0],
-                        value: item[1]
-                    }
-                })
-                console.log('newData',newData)
                 this.trip_data = newData;
 
-                console.log('fail');
+            }.bind(this))
+                .fail(function (data) {
+                alert('reload pls');
                 }.bind(this))
          },
 
@@ -140,9 +141,16 @@ var fligtMenu = new Vue({
             d = new Date(val)
             return d.toLocaleDateString();
         },
-        formatTime: function(val){
-            return (val/60/60).toFixed(1) + 'ч.'
-        }
+     formatTime: function(val){
+               var time = new Date(val*1000);
+               var days = time.getUTCDate();
+               days -=1
+               var hours = time.getUTCHours();
+               var minutes = time.getUTCMinutes();
+            if(days > 0)
+            return (days + 'д ' + hours  + 'ч  ' + minutes + 'мин')
+            else return (hours  + 'ч  ' + minutes + 'мин')
+            }
     },
     watch: {
 

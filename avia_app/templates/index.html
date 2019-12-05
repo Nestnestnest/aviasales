@@ -28,9 +28,9 @@
             <form class="form-inline" method="post" action="/get_flight"
                   ref="form1">
                 <div class="form-group">
-                     <input type="text" class="form-control"
-                               style="display:none" id="xml_q1" name="xml"
-                               value="RS_ViaOW" readonly>
+                    <input type="text" class="form-control"
+                           style="display:none" id="xml_q1" name="xml"
+                           value="RS_ViaOW" readonly>
                     <div class="col-sm-2">
                         <label for="from_q1">FROM</label>
                         <input type="text" class="form-control"
@@ -80,9 +80,9 @@
             <form class="form-inline" method="post" action="/get_flight"
                   ref="form2">
                 <div class="form-group">
-                       <input type="text" class="form-control"
-                               style="display:none" id="xml_q2" name="xml"
-                               value="RS_Via-3" readonly>
+                    <input type="text" class="form-control"
+                           style="display:none" id="xml_q2" name="xml"
+                           value="RS_Via-3" readonly>
                     <div class="col-sm-2">
                         <label for="from_q2">FROM</label>
                         <input type="text" class="form-control"
@@ -124,71 +124,126 @@
             </form>
 
         </div>
-        <div id="trips" v-if="trip_data.flights">
-            <div class="trip_info">
-                <p>From: [[(trip_data.trip_points[0])]]</p>
-                <p>To: [[(trip_data.trip_points[1])]]</p>
-                <p v-if="trip_data.Currency">Валюта: [[trip_data.Currency ]]</p>
-                <p>Туда: [[trip_data.dates.Start_date | formatData]]</p>
-                <p v-if="trip_data.dates.Finish_date">Обратно: [[trip_data.dates.Finish_date | formatData]]</p>
-                <p>hello</p>
-                <p v-for="pass,type in trip_data.passangers">[[type]] : [[pass]]</p>
+        <button class="btn btn-warning" @click="swapFormat()"  v-if="trip_data.flights"><span v-if="json">Отобразить в формате таблицы</span>
+            <span v-else>Отобразить в формате json</span></button>
+        <pre v-if="json" id="json_container">
+        </pre>
+        <div class="table_view" v-else>
+            <div id="trips" v-if="trip_data.flights">
+                <div class="trip_info">
+                    <h3>Детали поездки</h3>
+                    <div class="curr block_menu">
+                        <p class="items_key">Валюта:</p>
+                        <p class="item_block" v-if="trip_data.Currency">
+                            [[trip_data.Currency ]]</p>
+                    </div>
+                    <div class="trip_points block_menu">
+                        <p class="items_key">Маршрут:</p>
+                        <p class="item_block">Откуда:
+                            [[(trip_data.trip_points[0])]]</p>
+                        <p class="item_block">Куда:
+                            [[(trip_data.trip_points[1])]]</p>
+                    </div>
+                    <div class="trip_dates block_menu">
+                        <p class="items_key">Даты полета:</p>
+                        <p class="item_block">Туда: [[trip_data.dates.Start_date
+                            |
+                            formatData]]</p>
+                        <p class="item_block"
+                           v-if="trip_data.dates.Finish_date">
+                            Обратно:
+                            [[trip_data.dates.Finish_date | formatData]]</p>
+                    </div>
+
+                    <div class="passengers block_menu">
+                        <p class="items_key">Пассажиры:</p>
+                        <p v-for="pass,type in trip_data.passangers"
+                           class="item_block">[[type]] : [[pass]]</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flights">
+                <div v-if='bestFlights.length>0'
+                     class='group-flight-item best-flights'>
+                    <div class='flight-note-title'>Оптимальные маршруты</div>
+                    <flight-item :flight-data='flight'
+                                 :currency='trip_data.Currency'
+                                 v-for='flight in bestFlights'></flight-item>
+                </div>
+                <div v-if='bestFlights.length>0'
+                     class='group-flight-item low-price-flights'>
+                    <div class='flight-note-title'>Самая низкая стоимость</div>
+                    <flight-item :flight-data='flight'
+                                 :currency='trip_data.Currency'
+                                 v-for='flight in lowPriceFlights'></flight-item>
+                </div>
+                <div v-if='bestFlights.length>0'
+                     class='group-flight-item low-time-flights'>
+                    <div class='flight-note-title'>Самая быстрый перелет</div>
+                    <flight-item :flight-data='flight'
+                                 :currency='trip_data.Currency'
+                                 v-for='flight in lowTimeFlights'></flight-item>
+                </div>
+                <div v-if='bestFlights.length>0'
+                     class='group-flight-item top-price-flights'>
+                    <div class='flight-note-title'>Самая высокая стоимость</div>
+                    <flight-item :flight-data='flight'
+                                 :currency='trip_data.Currency'
+                                 v-for='flight in topPriceFlights'></flight-item>
+                </div>
+                <div v-if='bestFlights.length>0'
+                     class='group-flight-item top-time-flights'>
+                    <div class='flight-note-title'>Самый долгий перелет</div>
+                    <flight-item :flight-data='flight'
+                                 :currency='trip_data.Currency'
+                                 v-for='flight in topTimeFlights'></flight-item>
+                </div>
+                <div class='sort-bar' v-if='trip_data.flightsArr'>
+                    <select v-model='sortOptions.type' @change='changeSortType'>
+                        <option value="price-up">Сортировка по цене -
+                            возрастание
+                        </option>
+                        <option value="price-low">Сортировка по цене - убывание
+                        </option>
+                        <option value="time-up">Сортировка по времени -
+                            возрастание
+                        </option>
+                        <option value="time-low">Сортировка по времени -
+                            убывание
+                        </option>
+                    </select>
+                </div>
+                <div class='flight-item' v-for="flight in trip_data.flightsArr">
+                    <div class='flight-item__header'>
+                        <div class='flight-item__id'>id: [[flight.id]]</div>
+                        <div class='flight-item__notes'>
+                            <div class='flight-item__notes__best'></div>
+                            <div class='flight-item__notes__best'></div>
+                            <div class='flight-item__notes__best'></div>
+                            <div class='flight-item__notes__best'></div>
+                            <div class='flight-item__notes__best'></div>
+                        </div>
+                    </div>
+                    <div class='flight-item__content'>
+                        <div class='flight-item__values'>
+                            <div class='flight-item__values__time'>Время полета:
+                                [[flight.value.total_time | formatTime]]
+                            </div>
+                            <div class='flight-item__values__price'>Цена:&nbsp;
+                                [[flight.value.total_price ]]
+                                [[trip_data.Currency]]
+                            </div>
+                        </div>
+                        <div class='flight-item__info'>
+                            Информация (выводится при необходимости)
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="flights">
-            <div v-if = 'bestFlights.length>0' class = 'group-flight-item best-fligths'>
-                    <div class = 'flight-note-title'>Лучшее</div>
-                    <flight-item :flight-data = 'flight' :currency = 'trip_data.Currency' v-for = 'flight in bestFlights'></flight-item>
-            </div>
-            <div v-if = 'bestFlights.length>0' class = 'group-flight-item low-price-fligths'>
-                    <div class = 'flight-note-title'>Самая низкая стоймость</div>
-                    <flight-item :flight-data = 'flight' :currency = 'trip_data.Currency' v-for = 'flight in lowPriceFlights'></flight-item>
-            </div>
-            <div v-if = 'bestFlights.length>0' class = 'group-flight-item low-time-fligths'>
-                    <div class = 'flight-note-title'>Самая быстрый перелет</div>
-                    <flight-item :flight-data = 'flight' :currency = 'trip_data.Currency' v-for = 'flight in lowTimeFlights'></flight-item>
-            </div>
-            <div v-if = 'bestFlights.length>0' class = 'group-flight-item top-price-fligths'>
-                    <div class = 'flight-note-title'>Самая высокая стоймость</div>
-                    <flight-item :flight-data = 'flight' :currency = 'trip_data.Currency' v-for = 'flight in topPriceFlights'></flight-item>
-            </div>
-            <div v-if = 'bestFlights.length>0' class = 'group-flight-item top-time-fligths'>
-                    <div class = 'flight-note-title'>Самая долгий перелет</div>
-                    <flight-item :flight-data = 'flight' :currency = 'trip_data.Currency' v-for = 'flight in topTimeFlights'></flight-item>
-            </div>
-            <div class = 'sort-bar' v-if = 'trip_data.flightsArr' >
-                <select v-model = 'sortOptions.type' @change = 'changeSortType' >
-                    <option value="price-up">Сортировка по цене - возрастание</option>
-                    <option value="price-low">Сортировка по цене - убывание</option>
-                    <option value="time-up">Сортировка по вермени - возрастание</option>
-                    <option value="time-low">Сортировка по времени - убывание</option>
-                </select>
-            </div>
-            <div class = 'flight-item' v-for="flight in trip_data.flightsArr">
-                   <div class = 'flight-item__header'>
-                        <div class = 'flight-item__id' >id: [[flight.id]]</div>
-                        <div class = 'flight-item__notes'>
-                            <div class = 'flight-item__notes__best'></div>
-                            <div class = 'flight-item__notes__best'></div>
-                            <div class = 'flight-item__notes__best'></div>
-                            <div class = 'flight-item__notes__best'></div>
-                            <div class = 'flight-item__notes__best'></div>
-                        </div>
-                   </div>
-                   <div class = 'flight-item__content'>
-                        <div class = 'flight-item__values' >
-                            <div class = 'flight-item__values__time'>Время: [[flight.value.total_time | formatTime]]</div>
-                            <div class = 'flight-item__values__price'>Цена: [[flight.value.total_price ]][[trip_data.Currency]]</div>
-                        </div>
-                        <div class = 'flight-item__info'>
-                            Информация
-                        </div>
-                   </div>
-            </div>
-        </div>
+
     </div>
 </div>
-<script src="{{url_for('static', filename='test.js')}}"></script>
 <script src="{{url_for('static', filename='flightItem.js')}}"></script>
 <script src="{{url_for('static', filename='script.js')}}"></script>
 

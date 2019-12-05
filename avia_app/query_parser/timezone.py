@@ -63,11 +63,14 @@ def get_time_by_local(iata_code, dt, local_zone):
 
 
 def parse_ts_to_datetime(ts):
-    ts = int(time.mktime(ts.timetuple()))
     try:
         return datetime.fromtimestamp(ts)
     except:
         return datetime.fromtimestamp(int(ts) / 1e3)
+
+
+def parse_datetime_to_ts(dt):
+    return int(time.mktime(dt.timetuple()))
 
 
 if __name__ == '__main__':

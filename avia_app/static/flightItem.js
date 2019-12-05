@@ -7,7 +7,14 @@ Vue.component('flight-item', {
     },
     filters: {
         formatTime: function(val){
-            return (val/60/60).toFixed(1) + 'ч.'
+           var time = new Date(val*1000);
+           var days = time.getUTCDate();
+           days -=1
+           var hours = time.getUTCHours();
+           var minutes = time.getUTCMinutes();
+        if(days > 0)
+        return (days + 'д ' + hours  + 'ч  ' + minutes + 'мин')
+        else return (hours  + 'ч  ' + minutes + 'мин')
         }
     },
     template: `<div class = 'flight-item' >
@@ -23,11 +30,11 @@ Vue.component('flight-item', {
     </div>
     <div class = 'flight-item__content'>
          <div class = 'flight-item__values' >
-             <div class = 'flight-item__values__time'>Время: [[flightData.value.total_time | formatTime]]</div>
-             <div class = 'flight-item__values__price'>Цена: [[flightData.value.total_price ]][[currency]]</div>
+             <div class = 'flight-item__values__time'>Время полета: [[flightData.value.total_time | formatTime]]</div>
+             <div class = 'flight-item__values__price'>Цена: &nbsp; [[flightData.value.total_price ]][[currency]]</div>
          </div>
          <div class = 'flight-item__info'>
-             Информация
+             Информация (выводится при необходимости)
          </div>
     </div>
 </div>`

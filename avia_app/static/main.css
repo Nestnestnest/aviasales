@@ -4,3 +4,71 @@
     font-weight:bold;
 }
 
+.best-flights {
+    background-color: #b4d7b4;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.low-price-flights {
+    background-color: #8cbac8;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.low-time-flights {
+    background-color: #8cbac8;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.top-price-flights {
+    background-color: #ff938888;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.top-time-flights {
+    background-color: #ff938888;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.group-flight-item + .group-flight-item{
+    margin-top: 10px
+}
+
+.flight-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    color: #495057;
+    border: 1px solid grey;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: rgba(233, 236, 239, 0.5);
+}
+.flight-item + .flight-item{
+    margin-top: 5px;
+}
+
+.sort-bar {
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.block_menu {
+    display: flex;
+    align-items: center;
+}
+p{
+    margin: 0;
+}
+p.item_block {
+    padding-right: 0.5em;
+    padding-left: 0.5em;
+}
+.items_key,.flight-note-title{
+    font-weight:bold;
+}

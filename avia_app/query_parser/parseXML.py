@@ -134,7 +134,7 @@ def check_dtype(item, config, attr):
         elif dtype == 'float':
             data = float(data)
         elif dtype == 'id':
-            data = hash(data.strip())
+            data = abs(hash(data.strip()))
     d[descrip] = data
     return d
 
@@ -145,8 +145,9 @@ def parse_flights(node, tag, timezone):
     for cur_flight in range(len(node.findall('.//Flight')) - 1, -1, -1):
         row = get_tag(node.findall('.//Flight')[cur_flight], CONFIG_FLIGHT)
         row['Tag'] = tag
-        from_local_t = get_time_by_local(row['From'], row['Time_from'],timezone)
-        to_local_t = get_time_by_local(row['To'], row['Time_to'],timezone)
+        from_local_t = get_time_by_local(row['From'], row['Time_from'],
+                                         timezone)
+        to_local_t = get_time_by_local(row['To'], row['Time_to'], timezone)
         if from_local_t['code'] == 200 and to_local_t['code'] == 200:
             row['Time_from_local'] = from_local_t['data']
             row['Time_to_local'] = to_local_t['data']
@@ -195,7 +196,7 @@ def get_trips(root):
     return flights
 
 
-def parse_xml(timezone, xml):
+def parse_xml(global_info, xml):
     '''
     Parse xml
     :param timezone: the timezone of local client to translate time
@@ -211,7 +212,7 @@ def parse_xml(timezone, xml):
     for trip in trips:
         flight = list()
         for trips_step in list(trip):
-            trips_step = parse_step(trips_step, timezone)
+            trips_step = parse_step(trips_step, global_info['timezone'])
             if trips_step:
                 flight.extend(trips_step)
         if flight:
@@ -220,6 +221,8 @@ def parse_xml(timezone, xml):
         price = parse_trip_price(trip, trip_id)
         if price:
             prices.extend(price)
+    if 'Currency' not in global_info:
+        global_info['Currency'] = prices[0]['currency']
     return flights, prices
 
 
