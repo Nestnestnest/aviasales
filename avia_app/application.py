@@ -3,6 +3,7 @@ from flask_redis import FlaskRedis
 import atexit
 
 redis_client = FlaskRedis(host='redis')
+# redis_client = FlaskRedis()
 
 
 def create_app(config_filename):

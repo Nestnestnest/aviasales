@@ -1,5 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, Response, \
-    redirect, url_for
+from flask import Blueprint, render_template, request, jsonify
 from .parser_input import get_global_info
 from .get_flights import show_flights
 
@@ -13,6 +12,5 @@ def get_index():
 
 @query_parser_app.route('/get_flight', methods=['POST'])
 def get_flight():
-    print(request.form)
     global_info, xml = get_global_info(request.form)
     return jsonify(show_flights(global_info, xml))
