@@ -31,7 +31,7 @@
 6. XML парсятся при каждом запросе, а не сохраняются (при необходимости)
 7. В Redis хранятся __iata_code__ - справочник iata_code:country (для пункта 1),__timezone_country__  - timezone:country (для пункта 2 )
 
-Для запуска через __docker-compose__ (port: 8080):
+Для запуска через __docker-compose__ (http://0.0.0.0:8080):
 ```bash
 $ docker-compose build
 $ docker-compose up -d
