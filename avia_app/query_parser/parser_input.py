@@ -1,4 +1,3 @@
-from flask import request
 from datetime import datetime
 from .converters import get_local_cur_by_timezone
 

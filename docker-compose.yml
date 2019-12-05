@@ -2,11 +2,9 @@ version: '3'
 services:
   web:
     restart: always
-    build: ./avia_app
+    build: avia_app
     ports:
-     - "5000:5000"
-    volumes:
-     - .:/avia_app
+     - "8080:5000"
     environment:
         FLASK_ENV: development
     depends_on:

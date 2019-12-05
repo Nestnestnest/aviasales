@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as et
 import dateutil.parser as parser
 import pandas as pd
-from avia_app.query_parser.timezone import get_time_by_local
+from query_parser.timezone import get_time_by_local
 
 steps_dict = {'OnwardPricedItinerary': 'start',
               'ReturnPricedItinerary': 'finish', 'Pricing': 'price'}
