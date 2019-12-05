@@ -136,12 +136,60 @@
             </div>
         </div>
         <div class="flights">
-            <div v-for="(flight,key) in trip_data.flights">
-               qqq
+            <div v-if = 'bestFlights.length>0' class = 'group-flight-item best-fligths'>
+                    <div class = 'flight-note-title'>Лучшее</div>
+                    <flight-item :flight-data = 'flight' :currency = 'trip_data.Currency' v-for = 'flight in bestFlights'></flight-item>
+            </div>
+            <div v-if = 'bestFlights.length>0' class = 'group-flight-item low-price-fligths'>
+                    <div class = 'flight-note-title'>Самая низкая стоймость</div>
+                    <flight-item :flight-data = 'flight' :currency = 'trip_data.Currency' v-for = 'flight in lowPriceFlights'></flight-item>
+            </div>
+            <div v-if = 'bestFlights.length>0' class = 'group-flight-item low-time-fligths'>
+                    <div class = 'flight-note-title'>Самая быстрый перелет</div>
+                    <flight-item :flight-data = 'flight' :currency = 'trip_data.Currency' v-for = 'flight in lowTimeFlights'></flight-item>
+            </div>
+            <div v-if = 'bestFlights.length>0' class = 'group-flight-item top-price-fligths'>
+                    <div class = 'flight-note-title'>Самая высокая стоймость</div>
+                    <flight-item :flight-data = 'flight' :currency = 'trip_data.Currency' v-for = 'flight in topPriceFlights'></flight-item>
+            </div>
+            <div v-if = 'bestFlights.length>0' class = 'group-flight-item top-time-fligths'>
+                    <div class = 'flight-note-title'>Самая долгий перелет</div>
+                    <flight-item :flight-data = 'flight' :currency = 'trip_data.Currency' v-for = 'flight in topTimeFlights'></flight-item>
+            </div>
+            <div class = 'sort-bar' v-if = 'trip_data.flightsArr' >
+                <select v-model = 'sortOptions.type' @change = 'changeSortType' >
+                    <option value="price-up">Сортировка по цене - возрастание</option>
+                    <option value="price-low">Сортировка по цене - убывание</option>
+                    <option value="time-up">Сортировка по вермени - возрастание</option>
+                    <option value="time-low">Сортировка по времени - убывание</option>
+                </select>
+            </div>
+            <div class = 'flight-item' v-for="flight in trip_data.flightsArr">
+                   <div class = 'flight-item__header'>
+                        <div class = 'flight-item__id' >id: [[flight.id]]</div>
+                        <div class = 'flight-item__notes'>
+                            <div class = 'flight-item__notes__best'></div>
+                            <div class = 'flight-item__notes__best'></div>
+                            <div class = 'flight-item__notes__best'></div>
+                            <div class = 'flight-item__notes__best'></div>
+                            <div class = 'flight-item__notes__best'></div>
+                        </div>
+                   </div>
+                   <div class = 'flight-item__content'>
+                        <div class = 'flight-item__values' >
+                            <div class = 'flight-item__values__time'>Время: [[flight.value.total_time | formatTime]]</div>
+                            <div class = 'flight-item__values__price'>Цена: [[flight.value.total_price ]][[trip_data.Currency]]</div>
+                        </div>
+                        <div class = 'flight-item__info'>
+                            Информация
+                        </div>
+                   </div>
             </div>
         </div>
     </div>
 </div>
+<script src="{{url_for('static', filename='test.js')}}"></script>
+<script src="{{url_for('static', filename='flightItem.js')}}"></script>
 <script src="{{url_for('static', filename='script.js')}}"></script>
 
 </body>

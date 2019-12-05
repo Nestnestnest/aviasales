@@ -4,13 +4,76 @@ var fligtMenu = new Vue({
         trip_data : {},
         sortParam: '',
         currency : '',
+        sortOptions: {'type':'price-low'}
         },
 
     created() {
     },
     mounted() {
     },
+    computed:{
+        bestFlights: function(){
+            if(this.trip_data.flightsArr){
+                return this.trip_data.flightsArr.filter((item)=>item.value.notes.indexOf('best') != -1)
+            }
+            else{
+                return []
+            }
+        },
+        lowPriceFlights: function(){
+            if(this.trip_data.flightsArr){
+                return this.trip_data.flightsArr.filter((item)=>item.value.notes.indexOf('min_price') != -1)
+            }
+            else{
+                return []
+            }
+        },
+        lowTimeFlights: function(){
+            if(this.trip_data.flightsArr){
+                return this.trip_data.flightsArr.filter((item)=>item.value.notes.indexOf('min_time') != -1)
+            }
+            else{
+                return []
+            }
+        },
+        topPriceFlights: function(){
+            if(this.trip_data.flightsArr){
+                return this.trip_data.flightsArr.filter((item)=>item.value.notes.indexOf('max_price') != -1)
+            }
+            else{
+                return []
+            }
+        },
+        topTimeFlights: function(){
+            if(this.trip_data.flightsArr){
+                return this.trip_data.flightsArr.filter((item)=>item.value.notes.indexOf('max_time') != -1)
+            }
+            else{
+                return []
+            }
+        }
+    },
     methods: {
+        changeSortType(){
+            console.log("cur sort type ", this.sortOptions.type )
+            this.sortFlights()
+        },
+        sortFlights(){
+            this.trip_data.flightsArr.sort(function(a,b){
+                if(this.sortOptions.type == 'price-low'){
+                    return b.value.total_price - a.value.total_price
+                }
+                else if(this.sortOptions.type == 'price-up'){
+                    return a.value.total_price - b.value.total_price
+                }
+                else if(this.sortOptions.type == 'time-low'){
+                    return b.value.total_time - a.value.total_time
+                }
+                else{
+                    return a.value.total_time - b.value.total_time
+                }
+            }.bind(this))
+        },
         getTrip(ref){
 
             from = this.$refs[ref].FROM.value;
@@ -46,11 +109,29 @@ var fligtMenu = new Vue({
                 dataType: 'json'
             }).done(function (data) {
                 console.log('data', data)
-                this.trip_data = data.data;
+                let newData = data.data
+                newData.flightsArr = Object.entries(newData.flights).map((item)=>{
+                    return {
+                        id: item[0],
+                        value: item[1]
+                    }
+                })
+                console.log('newData',newData)
+                this.trip_data = newData;
             }.bind(this))
                 .fail(function (data) {
-                    console.log('fail');
+                let newData = testJSON
+                newData.flightsArr = Object.entries(newData.flights).map((item)=>{
+                    return {
+                        id: item[0],
+                        value: item[1]
+                    }
                 })
+                console.log('newData',newData)
+                this.trip_data = newData;
+
+                console.log('fail');
+                }.bind(this))
          },
 
     },
@@ -58,7 +139,13 @@ var fligtMenu = new Vue({
         formatData:function(val){
             d = new Date(val)
             return d.toLocaleDateString();
+        },
+        formatTime: function(val){
+            return (val/60/60).toFixed(1) + 'ч.'
         }
+    },
+    watch: {
+
     },
 
     delimiters: ['[[', ']]']
