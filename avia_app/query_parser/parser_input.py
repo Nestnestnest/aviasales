@@ -4,6 +4,11 @@ from .converters import get_local_cur_by_timezone
 
 
 def get_global_info(request_form):
+    """
+    Parse all params from client query
+    :param request_form:  ImmutableMultiDict(request.form)
+    :return: dict of params (without xml name), name of xml
+    """
     global_struct = dict()
     local_zone, from_airport, to_airport, when, when_return, who, xml = get_post_params(
         request_form,

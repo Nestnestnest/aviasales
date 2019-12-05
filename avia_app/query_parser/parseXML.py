@@ -1,8 +1,6 @@
 import xml.etree.ElementTree as et
 import dateutil.parser as parser
 import pandas as pd
-import datetime
-import time
 from avia_app.query_parser.timezone import get_time_by_local
 
 steps_dict = {'OnwardPricedItinerary': 'start',
@@ -181,7 +179,6 @@ def parse_trip_price(trip, trip_id):
     return trip_prices
 
 
-# -========================================================================
 def get_xml_root(xml):
     folder = f'xmls/{xml}.xml'
     tree = et.parse(folder)
@@ -199,6 +196,14 @@ def get_trips(root):
 
 
 def parse_xml(timezone, xml):
+    '''
+    Parse xml
+    :param timezone: the timezone of local client to translate time
+    to calculate all duration and display local time
+    next to default time of flight - customizable func
+    :param xml: xml name of query
+    :return: list of flights and appropriate prices
+    '''
     root = get_xml_root(xml)
     trips = get_trips(root)
     flights = list()

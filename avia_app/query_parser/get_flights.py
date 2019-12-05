@@ -1,10 +1,17 @@
 from .parseXML import parse_xml, get_df_by_data
 from .converters import convert_currency
 from .timezone import parse_ts_to_datetime
-from datetime import datetime
 
 
 def show_flights(global_info, xml):
+    '''
+    Parse xml and return json with aggregates flights and trips and fill
+    max/min/optimal time/price
+    :param global_info: dict of input params
+    :param xml: xml_name
+    :return: parsed xml
+    :rtype: dict
+    '''
     flights, prices = parse_xml(global_info['timezone'], xml)
     flights = get_df_by_data(flights)
     flights = flights.sort_values(
@@ -13,15 +20,21 @@ def show_flights(global_info, xml):
     agg_prices = get_agg_prices(global_info, prices)
     global_info = convert_trips_to_json(global_info, flights, agg_prices)
     global_info['flights'] = fill_max_min(global_info['flights'],
-                                          {'price': 'total_price'})
-    global_info['flights'] = fill_max_min(global_info['flights'],
-                                          {'time': 'total_time'})
-    # get_optimal_flight
-
+                                          {'price': 'total_price',
+                                           'time': 'total_time'})
+    fill_optimal_flights(global_info['flights'])
     return {'data': global_info}
 
 
 def convert_trips_to_json(global_info, flights, agg_prices):
+    '''
+    Translate flights_df to nested dict and merge prices
+    to all flight's (by local currency)
+    :param global_info:  dict of input params
+    :param flights:  df of flight's
+    :param agg_prices: df of aggregate price by flight's
+    :return: nested dict flight's with price
+    '''
     there = 'OnwardPricedItinerary'
     res = dict()
     diff_tag = ''
@@ -76,6 +89,8 @@ def fill_max_min(d, chooses, max_key='max', min_key='min'):
                 d[k]['notes'].append(f'{max_key}_{choose}')
             elif v == min_val[1]:
                 d[k]['notes'].append(f'{min_key}_{choose}')
+            if v <= (min_val[1] + 0.25 * min_val[1]):
+                d[k]['notes'].append(f'optimal_{choose}')
 
     return d
 
@@ -177,3 +192,10 @@ def get_agg_prices(global_info, prices: dict):
     return agg_prices
 
 
+def fill_optimal_flights(flights):
+    optimals = ['optimal_price', 'optimal_time']
+    for f in flights:
+        notes = flights[f]['notes']
+        flag_opt = all(o in notes for o in optimals)
+        if flag_opt:
+            flights[f]['notes'].append('best')
