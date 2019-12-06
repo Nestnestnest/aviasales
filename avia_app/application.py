@@ -2,13 +2,13 @@ from flask import Flask
 from flask_redis import FlaskRedis
 import atexit
 
-# redis_client = FlaskRedis(host='redis')
-redis_client = FlaskRedis()
+redis_client = FlaskRedis(host='redis')
+# redis_client = FlaskRedis()
 
 
 def create_app(config_filename):
     app = Flask(__name__)
-    # app.config['REDIS_URL'] = 'redis://redis/0'
+    app.config['REDIS_URL'] = 'redis://redis/0'
     redis_client.init_app(app)
     app.config.from_object(config_filename)
     from query_parser.views import query_parser_app
